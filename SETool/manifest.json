@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "Visualiser",
+  "description": "This extension uses Stack overflow data to visualize some things.",
+  "version": "1",
+  "author": "saiNitish",
+  "browser_action": {
+    "default_title": "Visualize SO for duplicate posts",
+    "default_popup":"popup.html"
+  },
+  "content_scripts":[
+    {
+      "matches":["https://stackoverflow.com/*"],
+      "js":["./content.js","./p5.js","./p5.dom.js"]
+    }
+  ],
+  // "background":{
+  //   "scripts":["background.js"]
+  // },
+  "content_security_policy": "script-src 'self' https://www.gstatic.com/ https://*.firebaseio.com https://www.googleapis.com; object-src 'self'; connect-src 'self' wss://*.firebaseio.com;",
+  "permissions": ["activeTab","webRequest","https://stackoverflow.com/*","storage"]
+}
