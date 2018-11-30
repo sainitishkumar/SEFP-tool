@@ -3,7 +3,7 @@ function button_click() {
 }
 
 var config = {
-        apiKey: "<api-key-here>",
+        apiKey: "AIzaSyCYVfoFOSz6PNUB_LQEf1AYuaV7d67L6js",
         authDomain: "sefp-tool.firebaseapp.com",
         databaseURL: "https://sefp-tool.firebaseio.com",
         projectId: "sefp-tool",
@@ -25,7 +25,7 @@ function setDOMInfo(info) {
     document.getElementById('isoriginal').textContent='Duplicate';
     document.getElementById('linkoriginal').textContent='<link_to_original_post>'
   }
-  document.getElementById('dummy-heading').textContent = "Question: "+info[0];
+  document.getElementById('dummy-heading').textContent = "Question Title: "+info[0];
   document.getElementById('dummy-paragraph').textContent =info[1];
   // for(ele in info[2])
   // {
@@ -38,6 +38,7 @@ function setDOMInfo(info) {
   // }
   document.getElementById("o_button").addEventListener("click", send_response);
   document.getElementById("d_button").addEventListener("click", send_response2);
+  document.getElementById("s_review").addEventListener("click", send_response3);
   var s = function(sketch) {
 
   sketch.setup = function() {
@@ -97,11 +98,14 @@ function setDOMInfo(info) {
 
 
 }
+var main_url;
 window.addEventListener('DOMContentLoaded', function () {
   chrome.tabs.query({
     active: true,
     currentWindow: true
   }, function (tabs) {
+    mainurl = tabs[0].url;
+    //alert(url);
     chrome.tabs.sendMessage(
         tabs[0].id,
         {from: 'popup', subject: 'ele_question'},
@@ -111,8 +115,11 @@ window.addEventListener('DOMContentLoaded', function () {
 function send_response()
 {
   var review = document.getElementById("review").value;
+  if(review!=""){
   var firebaseRef = firebase.database().ref();
-  firebaseRef.child(review).set("original",function(error){
+  var url = mainurl.split(".com")[1].split('/')[2];
+  var dummy = url+'/'+review;
+  firebaseRef.child(dummy).set("original",function(error){
     if(error){
       alert(error);
     }
@@ -132,11 +139,15 @@ function send_response()
   // });
   alert("review sent");
 }
+}
 function send_response2()
 {
   var review = document.getElementById("review").value;
+  if(review!=""){
   var firebaseRef = firebase.database().ref();
-  firebaseRef.child(review).set("duplicate",function(error){
+  var url = mainurl.split(".com")[1].split('/')[2];
+  var dummy = url+'/'+review;
+  firebaseRef.child(dummy).set("duplicate",function(error){
     if(error){
       alert(error);
     }
@@ -154,6 +165,51 @@ function send_response2()
   //   }
   // });
   alert("review sent");
+}
+}
+
+function send_response3()
+{
+  var url = mainurl.split(".com")[1].split('/')[2];
+  var ref = firebase.database().ref();
+
+  var data_main;
+  var reviews;
+  var text_rev="";
+  var final_revs = document.getElementById('final_revs');
+  final_revs.innerText="";
+  ref.on("value", function(snapshot) {
+    final_revs.innerText="";
+    console.log(snapshot.val());
+    data_main = snapshot.val();
+    reviews = data_main[url];
+    if(reviews == undefined)
+    {
+      var new_ele = document.createElement('p');
+      new_ele.innerText = "";
+      new_ele.innerText+="No reviews yet!!";
+      var br_ele = document.createElement('br');
+      final_revs.appendChild(new_ele);
+      final_revs.appendChild(br_ele);
+    }
+    else
+    {
+      for(var key in reviews){
+        //console.log(reviews[key]);
+        var new_ele = document.createElement('p');
+        new_ele.innerText = "";
+        new_ele.innerText += key;
+        new_ele.innerText += ':  -->'
+        new_ele.innerText += reviews[key];
+        //new_ele.innerText += '<br>';
+        var br_ele = document.createElement('br');
+        final_revs.appendChild(new_ele);
+        final_revs.appendChild(br_ele);
+      }
+    }
+  }, function (error) {
+     console.log("Error: " + error.code);
+  });
 }
 
 }
