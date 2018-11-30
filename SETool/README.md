@@ -1,4 +1,5 @@
-#SETool
+SETool
+
 Steps to use:
 
 1. Unzip the folder into a location.
